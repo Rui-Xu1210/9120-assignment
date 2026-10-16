@@ -14,7 +14,7 @@ The IDs currently use `CHAR(6)` with these formats:
 | `vaccine_id` | `V00001` |
 | `schedule_id` | `S00001` |
 
-It is not yet decided whether the database should automatically generate the `parent_id`, `child_id`, and `record_id`. The `reminder_id` format also needs to be confirmed.
+The database automatically generates the `parent_id`, `child_id`, `record_id` and `reminder_id`. >> confirmed
 
 ### Recommended vaccination schedules
 
