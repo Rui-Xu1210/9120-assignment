@@ -43,7 +43,7 @@ The existing `Check_status` domain will remain unchanged. It allows `pending` an
 
 ### Reminder date
 
-For now, the reminder date is set to the planned vaccination date. This is provisional and will be discussed with the group.
+The reminder date is set to the planned vaccination date. and as FK >> confirmed (The recommended doses should be inserted before children are added. And as a parent update their child's scheduled date, the scheduled date is automatically set to the updated one by parents.)
 
 ## SQL issues identified
 
