@@ -53,9 +53,9 @@ For now, the reminder date is set to the planned vaccination date. This is provi
 
 ## Decisions to confirm before building the database
 
-1. **ID generation:** Which IDs should the database generate? Confirm whether this includes `parent_id`, `child_id`, and `record_id`. Also confirm the prefix for `parent_id` and `reminder_id`.
-2. **Recommended age:** Confirm whether `INTERVAL` is suitable for the recommended ages in the project data.
-3. **Recommended schedule data:** Confirm that recommended doses will be inserted before children are added. If recommended doses are added later, decide whether existing children should receive new plans automatically.
+1. **ID generation:** Which IDs should the database generate? Confirm whether this includes `parent_id`, `child_id`, and `record_id`. Also confirm the prefix for `parent_id` and `reminder_id`. >> ALL IDs
+2. **Recommended age:** Confirm whether `INTERVAL` is suitable for the recommended ages in the project data. >> Confirmed
+3. **Recommended schedule data:** Confirm that recommended doses will be inserted before children are added. If recommended doses are added later, decide whether existing children should receive new plans automatically. >> The recommended doses should be inserted before children are added. When parents updated their child's scheduled date, the scheduled date is set to the updated one by parents.   
 4. **Reminder timing:** Confirm whether reminders should be sent on the planned vaccination date or earlier.
 5. **Python front end:** Decide whether to use Streamlit for the prototype and where PostgreSQL will run during the video demonstration.
 
