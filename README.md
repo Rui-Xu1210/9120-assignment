@@ -78,20 +78,20 @@ Show the updated status in the application
 A sensible first step is to verify this workflow in the database with sample data before building the full front end.
 
 # Schedule
-10.19: finish database testing
-10.20: meeting 10:30 am
-10.21: finish python testing
-10.22: meeting 3pm
-10.23: finish front end
-10.24: meeting 1pm
+- 10.19: finish database testing
+- 10.20: meeting 10:30 am
+- 10.21: finish python testing
+- 10.22: meeting 3pm
+- 10.23: finish front end
+- 10.24: meeting 1pm
 
 # reports
-part2, part 4.1, part 4.2 -- Rui,
-part3 -- Por
-part4 -- Liya
+- part2, part 4.1, part 4.2 -- Rui,
+- part3 -- Por
+- part4 -- Liya
 
 # application
-database: Por
-python application: Rui
-front end: Liya
+- database: Por
+- python application: Rui
+- front end: Liya
 
