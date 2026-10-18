@@ -211,6 +211,93 @@ FROM (
 JOIN Vaccine v ON v.vaccine_name = d.vaccine_name;
 
 -- Recommended_schedule
+INSERT INTO Recommended_schedule (
+    vaccine_id,
+    dose_number,
+    recommended_age
+)
+SELECT
+    v.vaccine_id,
+    d.dose_number,
+    d.recommended_age
+FROM (
+    VALUES
+        -- 1. Engerix B
+        ('Engerix B', 1, INTERVAL '0 days'),
+
+        -- 2. Infanrix hexa
+        ('Infanrix hexa', 1, INTERVAL '2 months'),
+        ('Infanrix hexa', 2, INTERVAL '4 months'),
+        ('Infanrix hexa', 3, INTERVAL '6 months'),
+
+        -- 3. Vaxelis
+        ('Vaxelis', 1, INTERVAL '2 months'),
+        ('Vaxelis', 2, INTERVAL '4 months'),
+        ('Vaxelis', 3, INTERVAL '6 months'),
+
+        -- 4. Prevenar 20
+        ('Prevenar 20', 1, INTERVAL '2 months'),
+        ('Prevenar 20', 2, INTERVAL '4 months'),
+        ('Prevenar 20', 3, INTERVAL '12 months'),
+
+        -- 5. Rotarix
+        ('Rotarix', 1, INTERVAL '2 months'),
+        ('Rotarix', 2, INTERVAL '4 months'),
+
+        -- 6. Bexsero
+        ('Bexsero', 1, INTERVAL '2 months'),
+        ('Bexsero', 2, INTERVAL '4 months'),
+        ('Bexsero', 3, INTERVAL '12 months'),
+
+        -- 7. Flucelvax
+        ('Flucelvax', 1, INTERVAL '6 months'),
+
+        -- 8. Fluzone
+        ('Fluzone', 1, INTERVAL '6 months'),
+
+        -- 9. Vaxigrip
+        ('Vaxigrip', 1, INTERVAL '6 months'),
+
+        -- 10. Influvac
+        ('Influvac', 1, INTERVAL '6 months'),
+
+        -- 11. Nimenrix
+        ('Nimenrix', 1, INTERVAL '12 months'),
+
+        -- 12. Priorix
+        ('Priorix', 1, INTERVAL '12 months'),
+
+        -- 13. Infanrix
+        ('Infanrix', 1, INTERVAL '18 months'),
+
+        -- 14. Tripacel
+        ('Tripacel', 1, INTERVAL '18 months'),
+
+        -- 15. Priorix Tetra
+        ('Priorix Tetra', 1, INTERVAL '18 months'),
+
+        -- 16. Act-HIB
+        ('Act-HIB', 1, INTERVAL '18 months'),
+
+        -- 17. Infanrix-IPV
+        ('Infanrix-IPV', 1, INTERVAL '4 years'),
+
+        -- 18. Quadracel
+        ('Quadracel', 1, INTERVAL '4 years'),
+
+        -- 19. Boostrix
+        ('Boostrix', 1, INTERVAL '12 years'),
+
+        -- 20. Adacel
+        ('Adacel', 1, INTERVAL '12 years'),
+
+        -- 21. Gardasil 9
+        ('Gardasil 9', 1, INTERVAL '12 years'),
+
+        -- 22. MenQuadfi
+        ('MenQuadfi', 1, INTERVAL '14 years')
+) AS d(vaccine_name, dose_number, recommended_age)
+JOIN Vaccine v ON v.vaccine_name = d.vaccine_name;
 
 
 
