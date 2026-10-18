@@ -65,7 +65,7 @@ CREATE TABLE Prevented_Disease (
 CREATE TABLE Recommended_schedule (
    vaccine_id CHAR(6) NOT NULL,
    dose_number SMALLINT NOT NULL CHECK (dose_number > 0),
-   recommended_age INTERVAL NOT NULL CHECK (recommended_age > INTERVAL '0'),
+   recommended_age INTERVAL NOT NULL CHECK (recommended_age >= INTERVAL '0'),
    PRIMARY KEY (vaccine_id, dose_number),
    FOREIGN KEY (vaccine_id) REFERENCES Vaccine(vaccine_id)
        ON UPDATE CASCADE
