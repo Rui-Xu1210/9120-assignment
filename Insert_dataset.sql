@@ -147,14 +147,12 @@ FROM (
    VALUES
        ('Engerix B', 'Hepatitis B'),
 
-
        ('Infanrix hexa', 'Diphtheria'),
        ('Infanrix hexa', 'Tetanus'),
        ('Infanrix hexa', 'Pertussis'),
        ('Infanrix hexa', 'Hepatitis B'),
        ('Infanrix hexa', 'Poliovirus'),
        ('Infanrix hexa', 'Haemophilus Influenzae Type b'),
-
 
        ('Vaxelis', 'Diphtheria'),
        ('Vaxelis', 'Tetanus'),
@@ -163,66 +161,56 @@ FROM (
        ('Vaxelis', 'Hepatitis B'),
        ('Vaxelis', 'Haemophilus Influenzae Type b'),
 
-
        ('Prevenar 20', 'Pneumococcal'),
        ('Rotarix', 'Rotavirus'),
        ('Bexsero', 'Meningococcal B'),
        ('Influvac', 'Influenza'),
        ('Nimenrix', 'Meningococcal ACWY'),
 
-
        ('Priorix', 'Measles'),
        ('Priorix', 'Mumps'),
        ('Priorix', 'Rubella'),
-
 
        ('Infanrix', 'Diphtheria'),
        ('Infanrix', 'Tetanus'),
        ('Infanrix', 'Pertussis'),
 
-
        ('Tripacel', 'Diphtheria'),
        ('Tripacel', 'Tetanus'),
        ('Tripacel', 'Pertussis'),
-
 
        ('Priorix Tetra', 'Measles'),
        ('Priorix Tetra', 'Mumps'),
        ('Priorix Tetra', 'Rubella'),
        ('Priorix Tetra', 'Varicella'),
 
-
        ('Act-HIB', 'Haemophilus Influenzae Type b'),
-
 
        ('Infanrix-IPV', 'Diphtheria'),
        ('Infanrix-IPV', 'Pertussis'),
        ('Infanrix-IPV', 'Poliovirus'),
-
 
        ('Quadracel', 'Diphtheria'),
        ('Quadracel', 'Tetanus'),
        ('Quadracel', 'Pertussis'),
        ('Quadracel', 'Poliovirus'),
 
-
        ('Boostrix', 'Diphtheria'),
        ('Boostrix', 'Tetanus'),
        ('Boostrix', 'Pertussis'),
-
 
        ('Adacel', 'Diphtheria'),
        ('Adacel', 'Tetanus'),
        ('Adacel', 'Pertussis'),
 
-
        ('Gardasil 9', 'Human papillomavirus'),
-
 
        ('MenQuadfi', 'Meningococcal (serogroups A, C, W, Y)'),
        ('MenQuadfi', 'Tetanus')
 ) AS d(vaccine_name, disease_name)
 JOIN Vaccine v ON v.vaccine_name = d.vaccine_name;
+
+-- Recommended_schedule
 
 
 
