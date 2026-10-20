@@ -62,7 +62,7 @@ CREATE TABLE recommended_schedule (
     vaccine_id      CHAR(6)  NOT NULL,
     dose_number     SMALLINT NOT NULL,
     recommended_age INTERVAL NOT NULL
-        CHECK (recommended_age > INTERVAL '0'),
+        CHECK (recommended_age >= interval ‘0’ ),
 
     PRIMARY KEY (vaccine_id, dose_number),
 
