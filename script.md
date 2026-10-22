@@ -25,7 +25,7 @@ Next is the History page.
 All the child’s vaccination records are displayed here, including the vaccine name, dose number and vaccination date.
 
 We can now see the record we just saved. 
-Parents can click on an entry to view its details or select “Add record” to enter another vaccination record.
+Parents can click on an entry to view its details or select “Add record” to enter another vaccination record by following the same steps as on the Schedule page.
 
 ++Reminders++
 
