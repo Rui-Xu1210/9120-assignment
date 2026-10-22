@@ -6,6 +6,7 @@ To start, click “Set up your family”. Enter the parent’s name,
 then click “Save and continue”. Next, enter the child’s name and date of birth, choose a parent, and save the child’s profile. 
 
 ++Schedule++
+
 Parents can manage more than one child by clicking “Add a child” on the Family page.
 
 On the Schedule page, all the vaccines grouped by recommended age are shown. Each entry shows the vaccine name, dose number and planned date. 
@@ -19,13 +20,15 @@ To add a schedule, click on a vaccine name. Then, click “Change planned date�
 Parents can change it to match their planned appointment.
 
 ++History++
+
 Next is the History page. 
 All the child’s vaccination records are displayed here, including the vaccine name, dose number and vaccination date.
 
 We can now see the record we just saved. 
 Parents can click on an entry to view its details or select “Add record” to enter another vaccination record.
 
-##++Reminders++
+++Reminders++
+
 Finally, the Reminders page allows parents to view Upcoming, Completed or All reminders. 
 
 Each entry shows the vaccine name, dose number, reminder date and time.
