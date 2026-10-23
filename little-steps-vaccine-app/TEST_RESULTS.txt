@@ -1,0 +1,11 @@
+Validation for delete/transaction revision (24 October 2026)
+- Python API suite: 40 passed; 2 external PostgreSQL-server tests skipped (no server configured).
+- PostgreSQL engine via PGlite: schema, seed, repeatable migration, record delete/status reset, child cascades, parent cascades, BEGIN/COMMIT/ROLLBACK, missing IDs, unrelated-family preservation, injected late failure rollback: passed.
+- Frontend DOM tests via jsdom: cancel, failed delete, record/child/parent delete, reload, empty-family state, selected IDs/localStorage: passed.
+- JavaScript syntax check: passed.
+No standalone PostgreSQL server or visual browser rendering was tested here.
+Run Python checks from the project root: python -m pytest -q
+Run engine and DOM checks: cd tests && npm install && npm test
+The JavaScript SQL checks use an isolated in-memory database, never your database.
+
+Native app follow-up: SwiftUI delete controls and mocked Swift tests added. Xcode/Swift not available here; native build and new Swift tests unexecuted. See apple/NATIVE_TEST_RESULTS.txt.

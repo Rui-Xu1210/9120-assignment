@@ -1,0 +1,11 @@
+Native deletion revision — 24 October 2026
+Added child, vaccination record and parent delete controls with confirmation.
+Added mocked Swift tests covering all DELETE paths, empty request bodies,
+success, missing targets, timeout ambiguity, failed refresh and selection persistence.
+Swift/Xcode are not installed in this Linux environment. These new Swift tests
+and the SwiftUI build have NOT been executed here. Previous native build results
+must not be taken as validation of this revision.
+On macOS run: cd apple && ./test.command
+Then open LittleSteps.xcodeproj and build/run the app.
+Backend and SQL transaction tests passed in the preceding revision; these
+components are unchanged by the native interface update.

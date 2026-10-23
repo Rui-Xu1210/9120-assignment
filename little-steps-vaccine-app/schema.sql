@@ -1,0 +1,294 @@
+-- DOMAIN
+CREATE DOMAIN Check_status AS VARCHAR(9)
+   DEFAULT 'pending'
+   CHECK (VALUE IN ('pending', 'completed'));
+
+
+-- SEQUENCES + ID GENERATOR: IDs are CHAR(6): 1-letter prefix + 5 digits
+CREATE SEQUENCE parent_id_seq               START WITH 1 MAXVALUE 99999; -- P00001
+CREATE SEQUENCE child_id_seq                START WITH 1 MAXVALUE 99999; -- C00001
+CREATE SEQUENCE vaccine_id_seq              START WITH 1 MAXVALUE 99999; -- V00001
+CREATE SEQUENCE vaccine_record_id_seq       START WITH 1 MAXVALUE 99999; -- D00001
+CREATE SEQUENCE vaccine_schedule_number_seq START WITH 1 MAXVALUE 99999; -- S00001
+CREATE SEQUENCE vaccine_reminder_number_seq START WITH 1 MAXVALUE 99999; -- R00001
+
+
+CREATE OR REPLACE FUNCTION generate_id(prefix TEXT, seq_name REGCLASS)
+RETURNS CHAR(6)
+LANGUAGE sql
+AS $$
+   SELECT (prefix || LPAD(nextval(seq_name)::TEXT, 5, '0'))::CHAR(6);
+$$;
+
+
+-- TABLES
+CREATE TABLE Parent (
+   parent_id CHAR(6) NOT NULL DEFAULT generate_id('P', 'parent_id_seq'),
+   name VARCHAR(100) NOT NULL,
+   PRIMARY KEY (parent_id)
+);
+
+
+CREATE TABLE Child (
+   child_id CHAR(6) NOT NULL DEFAULT generate_id('C', 'child_id_seq'),
+   name VARCHAR(100) NOT NULL,
+   date_of_birth DATE NOT NULL,
+   parent_id CHAR(6) NOT NULL,
+   PRIMARY KEY (child_id),
+   FOREIGN KEY (parent_id) REFERENCES Parent(parent_id)
+       ON UPDATE CASCADE
+       ON DELETE RESTRICT
+);
+
+
+CREATE TABLE Vaccine (
+   vaccine_id CHAR(6) NOT NULL DEFAULT generate_id('V', 'vaccine_id_seq'),
+   vaccine_name VARCHAR(50) NOT NULL,
+   vaccine_type VARCHAR(25),
+   manufacturer VARCHAR(100),
+   description TEXT,
+   PRIMARY KEY (vaccine_id)
+);
+
+
+CREATE TABLE Prevented_Disease (
+   vaccine_id CHAR(6) NOT NULL,
+   disease_name VARCHAR(50) NOT NULL,
+   PRIMARY KEY (vaccine_id, disease_name),
+   FOREIGN KEY (vaccine_id) REFERENCES Vaccine(vaccine_id)
+       ON UPDATE CASCADE
+       ON DELETE CASCADE
+);
+
+
+-- One standard recommended age for each vaccine dose.
+CREATE TABLE Recommended_schedule (
+   vaccine_id CHAR(6) NOT NULL,
+   dose_number SMALLINT NOT NULL CHECK (dose_number > 0),
+   recommended_age INTERVAL NOT NULL CHECK (recommended_age >= INTERVAL '0'),
+   PRIMARY KEY (vaccine_id, dose_number),
+   FOREIGN KEY (vaccine_id) REFERENCES Vaccine(vaccine_id)
+       ON UPDATE CASCADE
+       ON DELETE RESTRICT
+);
+
+
+-- Each row links one child to one recommended vaccine dose.
+CREATE TABLE Vaccine_schedule_id (
+   schedule_id CHAR(6) NOT NULL DEFAULT generate_id('S', 'vaccine_schedule_number_seq'),
+   child_id CHAR(6) NOT NULL,
+   vaccine_id CHAR(6) NOT NULL,
+   dose_number SMALLINT NOT NULL,
+   PRIMARY KEY (schedule_id),
+   UNIQUE (child_id, vaccine_id, dose_number),
+   FOREIGN KEY (child_id) REFERENCES Child(child_id)
+       ON UPDATE CASCADE
+       ON DELETE CASCADE,
+   FOREIGN KEY (vaccine_id, dose_number)
+       REFERENCES Recommended_schedule(vaccine_id, dose_number)
+       ON UPDATE CASCADE
+       ON DELETE RESTRICT
+);
+
+
+-- Stores the date and status of each child's scheduled dose.
+CREATE TABLE Vaccine_schedule (
+   schedule_id CHAR(6) NOT NULL,
+   scheduled_date DATE NOT NULL,
+   provider VARCHAR(50),
+   status Check_status NOT NULL,
+   PRIMARY KEY (schedule_id),
+   FOREIGN KEY (schedule_id) REFERENCES Vaccine_schedule_id(schedule_id)
+       ON UPDATE CASCADE
+       ON DELETE CASCADE
+);
+
+
+-- Stores one reminder for a scheduled dose.
+CREATE TABLE Vaccine_Reminder (
+   reminder_id CHAR(6) NOT NULL DEFAULT generate_id('R', 'vaccine_reminder_number_seq'),
+   schedule_id CHAR(6) NOT NULL,
+   reminder_date TIMESTAMP NOT NULL,
+   reminder_status Check_status NOT NULL,
+   PRIMARY KEY (reminder_id),
+   FOREIGN KEY (schedule_id) REFERENCES Vaccine_schedule_id(schedule_id)
+       ON UPDATE CASCADE
+       ON DELETE CASCADE
+);
+
+
+-- The record must refer to a valid vaccine dose in Recommended_schedule.
+CREATE TABLE Vaccine_Record (
+   record_id CHAR(6) NOT NULL DEFAULT generate_id('D', 'vaccine_record_id_seq'),
+   child_id CHAR(6) NOT NULL,
+   vaccine_id CHAR(6) NOT NULL,
+   dose_number SMALLINT NOT NULL,
+   vaccination_date TIMESTAMP NOT NULL,
+   provider VARCHAR(50),
+   PRIMARY KEY (record_id),
+   UNIQUE (child_id, vaccine_id, dose_number),
+   FOREIGN KEY (child_id) REFERENCES Child(child_id)
+       ON UPDATE CASCADE
+       ON DELETE CASCADE,
+   FOREIGN KEY (vaccine_id, dose_number)
+       REFERENCES Recommended_schedule(vaccine_id, dose_number)
+       ON UPDATE CASCADE
+       ON DELETE RESTRICT
+);
+
+
+-- VIEW
+CREATE VIEW Child_With_Age AS
+SELECT
+   child_id,
+   name,
+   date_of_birth,
+   parent_id,
+   EXTRACT(YEAR FROM AGE(CURRENT_DATE, date_of_birth))::INTEGER AS age
+FROM Child;
+
+
+-- TRIGGER 1: create schedules + reminders for a new child
+CREATE OR REPLACE FUNCTION create_child_schedules_and_reminders()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+   dose RECORD;
+   new_schedule_id CHAR(6);
+   due_date DATE;
+BEGIN
+   FOR dose IN
+       SELECT vaccine_id, dose_number, recommended_age
+       FROM Recommended_schedule
+       ORDER BY vaccine_id, dose_number
+   LOOP
+       new_schedule_id := generate_id('S', 'vaccine_schedule_number_seq');
+       due_date := (NEW.date_of_birth + dose.recommended_age)::DATE;
+
+
+       INSERT INTO Vaccine_schedule_id (schedule_id, child_id, vaccine_id, dose_number)
+       VALUES (new_schedule_id, NEW.child_id, dose.vaccine_id, dose.dose_number);
+
+
+       INSERT INTO Vaccine_schedule (schedule_id, scheduled_date, status)
+       VALUES (new_schedule_id, due_date, 'pending');
+
+
+       -- The reminder date is the planned vaccination date.
+       INSERT INTO Vaccine_Reminder (reminder_id, schedule_id, reminder_date, reminder_status)
+       VALUES (
+           generate_id('R', 'vaccine_reminder_number_seq'),
+           new_schedule_id,
+           due_date,
+           'pending'
+       );
+   END LOOP;
+
+
+   RETURN NEW;
+END;
+$$;
+
+
+CREATE TRIGGER after_child_insert_create_schedules
+AFTER INSERT ON Child
+FOR EACH ROW
+EXECUTE FUNCTION create_child_schedules_and_reminders();
+
+
+-- TRIGGER 2: mark schedule + reminder completed when a vaccination is recorded
+CREATE OR REPLACE FUNCTION complete_schedule_and_reminder()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+AS $$
+DECLARE
+   matched_schedule_id CHAR(6);
+BEGIN
+   SELECT schedule_id INTO matched_schedule_id
+   FROM Vaccine_schedule_id
+   WHERE child_id = NEW.child_id
+     AND vaccine_id = NEW.vaccine_id
+     AND dose_number = NEW.dose_number;
+
+
+   IF matched_schedule_id IS NOT NULL THEN
+       UPDATE Vaccine_schedule
+       SET status = 'completed'
+       WHERE schedule_id = matched_schedule_id;
+
+
+       UPDATE Vaccine_Reminder
+       SET reminder_status = 'completed'
+       WHERE schedule_id = matched_schedule_id;
+   END IF;
+
+
+   RETURN NEW;
+END;
+$$;
+
+
+CREATE TRIGGER after_vaccine_record_insert_complete_schedule
+AFTER INSERT ON Vaccine_Record
+FOR EACH ROW
+EXECUTE FUNCTION complete_schedule_and_reminder();
+
+-- Additive migration: safe to reapply to an existing project database.
+-- Functions run inside the caller's transaction; they never commit themselves.
+
+CREATE OR REPLACE FUNCTION reset_deleted_record_status()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+DECLARE matched_schedule CHAR(6);
+BEGIN
+    SELECT schedule_id INTO matched_schedule FROM vaccine_schedule_id
+    WHERE child_id=OLD.child_id AND vaccine_id=OLD.vaccine_id
+      AND dose_number=OLD.dose_number;
+    UPDATE vaccine_schedule SET status='pending'
+    WHERE schedule_id=matched_schedule;
+    UPDATE vaccine_reminder SET reminder_status='pending'
+    WHERE schedule_id=matched_schedule;
+    RETURN OLD;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS after_record_delete_reset_status ON vaccine_record;
+CREATE TRIGGER after_record_delete_reset_status
+AFTER DELETE ON vaccine_record FOR EACH ROW
+EXECUTE FUNCTION reset_deleted_record_status();
+
+CREATE OR REPLACE FUNCTION delete_child(p_child_id TEXT)
+RETURNS BOOLEAN LANGUAGE plpgsql AS $$
+BEGIN
+    -- Cascades remove records, schedule identities, details and reminders.
+    DELETE FROM child WHERE child_id=p_child_id;
+    RETURN FOUND;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION delete_vaccination_record(p_record_id TEXT)
+RETURNS BOOLEAN LANGUAGE plpgsql AS $$
+DECLARE owner_id CHAR(6);
+BEGIN
+    SELECT child_id INTO owner_id FROM vaccine_record WHERE record_id=p_record_id;
+    IF NOT FOUND THEN RETURN FALSE; END IF;
+    -- Same lock order as record creation: child first, then record and statuses.
+    PERFORM 1 FROM child WHERE child_id=owner_id FOR UPDATE;
+    DELETE FROM vaccine_record WHERE record_id=p_record_id;
+    -- The delete trigger resets the matching schedule and reminders.
+    RETURN FOUND;
+END;
+$$;
+
+CREATE OR REPLACE FUNCTION delete_parent(p_parent_id TEXT)
+RETURNS BOOLEAN LANGUAGE plpgsql AS $$
+BEGIN
+    -- Prevent new children being attached while this family is removed.
+    PERFORM 1 FROM parent WHERE parent_id=p_parent_id FOR UPDATE;
+    IF NOT FOUND THEN RETURN FALSE; END IF;
+    -- Keep the existing ON DELETE RESTRICT parent foreign key.
+    DELETE FROM child WHERE parent_id=p_parent_id;
+    DELETE FROM parent WHERE parent_id=p_parent_id;
+    RETURN FOUND;
+END;
+$$;
