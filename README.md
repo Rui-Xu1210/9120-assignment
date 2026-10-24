@@ -95,6 +95,3 @@ A sensible first step is to verify this workflow in the database with sample dat
 - python application: Rui
 - front end: Liya
 
-# problem
-in sql, we don't have a unique constraint for schedule_id in the reminder relation, but our business rule shows that one schedule_id creates one reminder_id
-a vaccine has at least one prevented disease or not?
