@@ -1,14 +1,17 @@
 BEGIN;
+
+-- DOMAIN
 CREATE DOMAIN Check_status 
-AS VARCHAR(9)
-DEFAULT 'pending'
-CHECK (VALUE IN ('pending', 'completed'));  
+	AS VARCHAR(9)
+	DEFAULT 'pending'
+	CHECK (VALUE IN ('pending', 'completed'));  
 
+-- TABLE
 CREATE TABLE Parent (
-parent_id  CHAR(6)     NOT NULL,
-name        VARCHAR(100) NOT NULL,
+	parent_id  CHAR(6)     NOT NULL,
+	name        VARCHAR(100) NOT NULL,
 
-PRIMARY KEY (parent_id)
+	PRIMARY KEY (parent_id)
 );
 
 CREATE TABLE Child (
@@ -23,21 +26,21 @@ CREATE TABLE Child (
 );
 
 CREATE TABLE Vaccine (
-vaccine_id    CHAR(6),
-vaccine_name  VARCHAR(50) NOT NULL,
-vaccine_type  VARCHAR(25),
-manufacturer  VARCHAR(100),
-description   TEXT,
-
-PRIMARY KEY (vaccine_id)
+	vaccine_id    CHAR(6),
+	vaccine_name  VARCHAR(50) NOT NULL,
+	vaccine_type  VARCHAR(25),
+	manufacturer  VARCHAR(100),
+	description   TEXT,
+	
+	PRIMARY KEY (vaccine_id)
 );
 
 CREATE TABLE Prevented_Disease (
-vaccine_id    CHAR(6)     NOT NULL,
-disease_name  VARCHAR(50) NOT NULL,
+	vaccine_id    CHAR(6)     NOT NULL,
+	disease_name  VARCHAR(50) NOT NULL,
 
-PRIMARY KEY (vaccine_id, disease_name),
-FOREIGN KEY (vaccine_id) REFERENCES Vaccine(vaccine_id)
+	PRIMARY KEY (vaccine_id, disease_name),
+	FOREIGN KEY (vaccine_id) REFERENCES Vaccine(vaccine_id)
         		ON UPDATE CASCADE
         		ON DELETE CASCADE
 );
@@ -78,15 +81,15 @@ CREATE TABLE Vaccine_Record (
 	provider VARCHAR(50),
 
 	PRIMARY KEY (record_id),
-CONSTRAINT Vaccine_Record_FK1 FOREIGN KEY (child_id) REFERENCES 
-Child(child_id)
+	CONSTRAINT Vaccine_Record_FK1 FOREIGN KEY (child_id) REFERENCES 
+	Child(child_id)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
-CONSTRAINT Vaccine_Record_FK2 FOREIGN KEY (vaccine_id, dose_number)
-REFERENCES recommended_schedule(vaccine_id, dose_number)
+	CONSTRAINT Vaccine_Record_FK2 FOREIGN KEY (vaccine_id, dose_number)
+	REFERENCES recommended_schedule(vaccine_id, dose_number)
 		ON UPDATE CASCADE
 		ON DELETE CASCADE,
-UNIQUE (child_id, vaccine_id, dose_number)
+	UNIQUE (child_id, vaccine_id, dose_number)
 );
 
 CREATE TABLE Vaccine_schedule_id (
@@ -122,6 +125,18 @@ CREATE TABLE Vaccine_schedule (
         REFERENCES Vaccine_schedule_id (schedule_id)
         ON UPDATE CASCADE
         ON DELETE CASCADE
+);
+
+CREATE TABLE Vaccine_Reminder (
+	reminder_id CHAR(6),
+	schedule_id CHAR(6) UNIQUE NOT NULL,
+	reminder_date TIMESTAMP NOT NULL,
+	reminder_status Check_status NOT NULL,
+
+	PRIMARY KEY (reminder_id),
+	FOREIGN KEY (schedule_id) REFERENCES Vaccine_Schedule_id (schedule_id)
+		ON UPDATE CASCADE
+		ON DELETE CASCADE
 );
 
 CREATE OR REPLACE FUNCTION create_vaccine_schedule(
@@ -172,19 +187,9 @@ BEGIN
 END;
 $$;
 
-CREATE TABLE Vaccine_Reminder (
-	reminder_id CHAR(6),
-	schedule_id CHAR(6) UNIQUE NOT NULL,
-	reminder_date TIMESTAMP NOT NULL,
-	reminder_status Check_status NOT NULL,
-
-	PRIMARY KEY (reminder_id),
-	FOREIGN KEY (schedule_id) REFERENCES Vaccine_Schedule_id (schedule_id)
-		ON UPDATE CASCADE
-		ON DELETE CASCADE
-);
-
 COMMIT;
+
+
 
 BEGIN;
 
