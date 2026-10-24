@@ -139,6 +139,8 @@ CREATE TABLE Vaccine_Reminder (
 		ON DELETE CASCADE
 );
 
+
+-- Create vaccination schedule function
 CREATE OR REPLACE FUNCTION create_vaccine_schedule(
     p_child_id     CHAR(6),
     p_vaccine_id   CHAR(6),
@@ -193,6 +195,7 @@ COMMIT;
 
 BEGIN;
 
+-- Update parent function
 CREATE OR REPLACE FUNCTION update_parent(p_parent_id TEXT, p_name TEXT)
 RETURNS VOID LANGUAGE plpgsql AS $$
 BEGIN
@@ -201,6 +204,8 @@ BEGIN
 END;
 $$;
 
+
+-- Delete parent function
 CREATE OR REPLACE FUNCTION delete_parent(p_parent_id TEXT)
 RETURNS BOOLEAN LANGUAGE plpgsql AS $$
 BEGIN
@@ -212,6 +217,8 @@ BEGIN
 END;
 $$;
 
+
+-- Update child function
 CREATE OR REPLACE FUNCTION update_child(
     p_child_id TEXT, p_name TEXT, p_date_of_birth DATE, p_parent_id TEXT
 )
@@ -224,6 +231,8 @@ BEGIN
 END;
 $$;
 
+
+-- Delete child function
 CREATE OR REPLACE FUNCTION delete_child(p_child_id TEXT)
 RETURNS BOOLEAN LANGUAGE plpgsql AS $$
 BEGIN
@@ -233,6 +242,8 @@ BEGIN
 END;
 $$;
 
+
+-- Update vaccination record function
 CREATE OR REPLACE FUNCTION update_vaccination_record(
     p_record_id TEXT, p_child_id TEXT, p_vaccine_id TEXT,
     p_dose_number SMALLINT, p_vaccination_date TIMESTAMP, p_provider TEXT
@@ -248,6 +259,8 @@ BEGIN
 END;
 $$;
 
+
+-- Delete vaccination record function
 CREATE OR REPLACE FUNCTION delete_vaccination_record(p_record_id TEXT)
 RETURNS BOOLEAN LANGUAGE plpgsql AS $$
 BEGIN
